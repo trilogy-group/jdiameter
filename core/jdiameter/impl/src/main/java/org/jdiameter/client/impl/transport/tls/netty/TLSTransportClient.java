@@ -30,8 +30,8 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.security.cert.Certificate;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.security.cert.X509Certificate;
 import org.jdiameter.api.Configuration;
 import org.jdiameter.client.api.IMessage;
 import org.jdiameter.client.api.parser.IMessageParser;
@@ -67,13 +67,13 @@ public class TLSTransportClient {
     INIT, SHAKING, SHAKEN
   }
 
-  private Certificate[] peerCertificateChain;
+  private X509Certificate[] peerCertificateChain;
 
-  public void setPeerCertificateChain(Certificate[] peerCertificateChain) {
+  public void setPeerCertificateChain(X509Certificate[] peerCertificateChain) {
     this.peerCertificateChain = peerCertificateChain;
   }
 
-  public Certificate[] getPeerCertificateChain() {
+  public X509Certificate[] getPeerCertificateChain() {
     return peerCertificateChain;
   }
 

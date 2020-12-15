@@ -80,7 +80,7 @@ public class StartTlsServerHandler extends ChannelInboundHandlerAdapter {
             logger.debug("StartTls server handshake succesfull");
 
             tlsTransportClient.setTlsHandshakingState(TlsHandshakingState.SHAKEN);
-            tlsTransportClient.setPeerCertificateChain(sslEngine.getSession().getPeerCertificates());
+            tlsTransportClient.setPeerCertificateChain(sslEngine.getSession().getPeerCertificateChain());
 
             logger.debug("restoring all handlers");
 

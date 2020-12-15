@@ -23,12 +23,12 @@ import io.netty.channel.Channel;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.security.cert.Certificate;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.net.ssl.SSLSocketFactory;
+import javax.security.cert.X509Certificate;
 import org.jdiameter.api.AvpDataException;
 import org.jdiameter.api.Configuration;
 import org.jdiameter.api.InternalException;
@@ -339,7 +339,7 @@ public class TLSClientConnection implements IConnection {
     }
   }
 
-  public Certificate[] getPeerCredentials() {
+  public X509Certificate[] getPeerCredentials() {
     return client.getPeerCertificateChain();
   }
 }
