@@ -339,6 +339,10 @@ public class TLSClientConnection implements IConnection {
     }
   }
 
+  /**
+   * Get peer certificate chain
+   * @return certificate array
+   */
   public X509Certificate[] getPeerCredentials() {
     return client.getPeerCertificateChain();
   }

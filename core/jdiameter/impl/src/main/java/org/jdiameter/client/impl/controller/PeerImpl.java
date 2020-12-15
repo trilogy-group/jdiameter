@@ -1131,6 +1131,10 @@ public class PeerImpl extends AbstractPeer implements IPeer {
     }
   }
 
+  /**
+   * Get peer certificate chain
+   * @return certificate array
+   */
   public X509Certificate[] getPeerCredentials() {
     if (connection instanceof TLSClientConnection) {
       return ((TLSClientConnection) connection).getPeerCredentials();

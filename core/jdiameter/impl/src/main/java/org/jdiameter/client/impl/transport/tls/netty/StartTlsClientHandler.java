@@ -37,6 +37,8 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:jqayyum@gmail.com"> Jehanzeb Qayyum </a>
  */
 public class StartTlsClientHandler extends ChannelInboundHandlerAdapter {
+
+  public static final String START_TLS_RESPONSE = "StartTlsResponse";
   private static final Logger logger = LoggerFactory.getLogger(StartTlsClientHandler.class);
   private static final boolean PREEMPTIVE = Boolean.valueOf(System.getenv("CLDCB_RFC6733"));
 
@@ -54,7 +56,7 @@ public class StartTlsClientHandler extends ChannelInboundHandlerAdapter {
     byte[] bytes = new byte[buf.readableBytes()];
     buf.getBytes(buf.readerIndex(), bytes);
 
-    if ("StartTlsResponse".equals(new String(bytes))) {
+    if (START_TLS_RESPONSE.equals(new String(bytes))) {
       logger.debug("received StartTlsResponse");
 
       SslContext sslContext = SslContextFactory.getSslContextForClient(this.tlsTransportClient.getConfig());

@@ -265,6 +265,9 @@ public class TLSTransportClient {
     return config;
   }
 
+  /**
+   * Post TLS started operation
+   */
   public void onConnected() {
     tlsStarted.set(true);
     synchronized (tlsStarted) {

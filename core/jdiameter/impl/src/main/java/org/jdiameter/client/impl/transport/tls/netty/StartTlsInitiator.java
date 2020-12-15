@@ -78,7 +78,7 @@ public class StartTlsInitiator extends ChannelInboundHandlerAdapter {
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   private void startTlsHandshake(ChannelHandlerContext ctx) {
-    this.tlsTransportClient.setTlsHandshakingState(TlsHandshakingState.SHAKING);
+    tlsTransportClient.setTlsHandshakingState(TlsHandshakingState.SHAKING);
 
     final ChannelPipeline pipeline = ctx.pipeline();
     pipeline.remove("decoder");
