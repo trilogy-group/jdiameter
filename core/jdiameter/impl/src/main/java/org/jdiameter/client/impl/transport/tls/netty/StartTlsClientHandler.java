@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class StartTlsClientHandler extends ChannelInboundHandlerAdapter {
   private static final Logger logger = LoggerFactory.getLogger(StartTlsClientHandler.class);
-  private static final boolean preemptive = Boolean.valueOf(System.getenv("CLDCB_RFC6733"));
+  private static final boolean PREEMPTIVE = Boolean.valueOf(System.getenv("CLDCB_RFC6733"));
 
   private final TLSTransportClient tlsTransportClient;
 
@@ -86,7 +86,7 @@ public class StartTlsClientHandler extends ChannelInboundHandlerAdapter {
             pipeline.addLast("encoder", new DiameterMessageEncoder(StartTlsClientHandler.this.tlsTransportClient.getParser()));
             pipeline.addLast("inbandWriter", new InbandSecurityHandler());
 
-            if (preemptive) {
+            if (PREEMPTIVE) {
               tlsTransportClient.onConnected();
             }
           }

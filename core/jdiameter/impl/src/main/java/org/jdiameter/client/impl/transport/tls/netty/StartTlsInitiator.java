@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class StartTlsInitiator extends ChannelInboundHandlerAdapter {
   private static final Logger logger = LoggerFactory.getLogger(StartTlsInitiator.class);
-  private static final boolean preemptive = Boolean.valueOf(System.getenv("CLDCB_RFC6733"));
+  private static final boolean PREEMPTIVE = Boolean.valueOf(System.getenv("CLDCB_RFC6733"));
   private final Configuration config;
   private final TLSTransportClient tlsTransportClient;
 
@@ -51,7 +51,7 @@ public class StartTlsInitiator extends ChannelInboundHandlerAdapter {
 
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
-    if (preemptive) {
+    if (PREEMPTIVE) {
       logger.debug("RFC633 preemptive TLS session");
       startTlsHandshake(ctx);
     }

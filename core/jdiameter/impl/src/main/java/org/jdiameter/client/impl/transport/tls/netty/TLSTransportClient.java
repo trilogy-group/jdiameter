@@ -44,8 +44,10 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:jqayyum@gmail.com"> Jehanzeb Qayyum </a>
  */
 public class TLSTransportClient {
+
   private static final Logger logger = LoggerFactory.getLogger(TLSTransportClient.class);
-  private static final boolean preemptive = Boolean.valueOf(System.getenv("CLDCB_RFC6733"));
+  private static final boolean PREEMPTIVE = Boolean.valueOf(System.getenv("CLDCB_RFC6733"));
+  public static final int timeoutMillis = 10000;
 
   private TLSClientConnection parentConnection;
   private IConcurrentFactory concurrentFactory;
@@ -70,11 +72,11 @@ public class TLSTransportClient {
   private X509Certificate[] peerCertificateChain;
 
   public void setPeerCertificateChain(X509Certificate[] peerCertificateChain) {
-    this.peerCertificateChain = peerCertificateChain;
+    this.peerCertificateChain = null == peerCertificateChain ? new X509Certificate[0] : peerCertificateChain.clone();
   }
 
   public X509Certificate[] getPeerCertificateChain() {
-    return peerCertificateChain;
+    return peerCertificateChain == null ? new X509Certificate[0] : peerCertificateChain.clone();
   }
 
   protected TLSTransportClient(TLSClientConnection parenConnection, IConcurrentFactory concurrentFactory, IMessageParser parser,
@@ -146,11 +148,11 @@ public class TLSTransportClient {
 
     this.channel = bootstrap.remoteAddress(destAddress).connect().sync().channel();
 
-    if (preemptive) {
+    if (PREEMPTIVE) {
       while (!tlsStarted.get()) {
         logger.debug("Waiting for end of TLS handshake");
         synchronized (tlsStarted) {
-          tlsStarted.wait(10000);
+          tlsStarted.wait(timeoutMillis);
         }
       }
       logger.debug("TLS handshake is complete");
