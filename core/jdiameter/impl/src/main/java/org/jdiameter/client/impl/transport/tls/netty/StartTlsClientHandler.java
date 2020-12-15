@@ -19,12 +19,6 @@
 
 package org.jdiameter.client.impl.transport.tls.netty;
 
-import javax.net.ssl.SSLEngine;
-
-import org.jdiameter.client.impl.transport.tls.netty.TLSTransportClient.TlsHandshakingState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -33,6 +27,10 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import javax.net.ssl.SSLEngine;
+import org.jdiameter.client.impl.transport.tls.netty.TLSTransportClient.TlsHandshakingState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -40,6 +38,7 @@ import io.netty.util.concurrent.GenericFutureListener;
  */
 public class StartTlsClientHandler extends ChannelInboundHandlerAdapter {
   private static final Logger logger = LoggerFactory.getLogger(StartTlsClientHandler.class);
+  private static final boolean preemptive = Boolean.valueOf(System.getenv("CLDCB_RFC6733"));
 
   private final TLSTransportClient tlsTransportClient;
 
@@ -86,6 +85,10 @@ public class StartTlsClientHandler extends ChannelInboundHandlerAdapter {
 
             pipeline.addLast("encoder", new DiameterMessageEncoder(StartTlsClientHandler.this.tlsTransportClient.getParser()));
             pipeline.addLast("inbandWriter", new InbandSecurityHandler());
+
+            if (preemptive) {
+              tlsTransportClient.onConnected();
+            }
           }
         }
       });

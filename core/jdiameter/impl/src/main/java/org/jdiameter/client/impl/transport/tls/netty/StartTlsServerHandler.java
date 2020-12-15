@@ -19,12 +19,6 @@
 
 package org.jdiameter.client.impl.transport.tls.netty;
 
-import javax.net.ssl.SSLEngine;
-
-import org.jdiameter.client.impl.transport.tls.netty.TLSTransportClient.TlsHandshakingState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -35,6 +29,10 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import javax.net.ssl.SSLEngine;
+import org.jdiameter.client.impl.transport.tls.netty.TLSTransportClient.TlsHandshakingState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -59,8 +57,9 @@ public class StartTlsServerHandler extends ChannelInboundHandlerAdapter {
     if ("StartTlsRequest".equals(new String(bytes))) {
       logger.debug("Received StartTlsRequest");
       SslContext sslContext = SslContextFactory.getSslContextForServer(this.tlsTransportClient.getConfig());
-      SSLEngine sslEngine = sslContext.newEngine(ctx.alloc());
+      final SSLEngine sslEngine = sslContext.newEngine(ctx.alloc());
       sslEngine.setUseClientMode(false);
+      sslEngine.setNeedClientAuth(true);
       SslHandler sslHandler = new SslHandler(sslEngine, false);
 
       final ChannelPipeline pipeline = ctx.pipeline();
@@ -81,6 +80,7 @@ public class StartTlsServerHandler extends ChannelInboundHandlerAdapter {
             logger.debug("StartTls server handshake succesfull");
 
             tlsTransportClient.setTlsHandshakingState(TlsHandshakingState.SHAKEN);
+            tlsTransportClient.setPeerCertificateChain(sslEngine.getSession().getPeerCertificates());
 
             logger.debug("restoring all handlers");
 

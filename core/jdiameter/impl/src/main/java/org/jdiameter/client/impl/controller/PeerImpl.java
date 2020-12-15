@@ -79,6 +79,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -87,7 +88,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.jdiameter.api.ApplicationId;
 import org.jdiameter.api.Avp;
 import org.jdiameter.api.AvpDataException;
@@ -124,6 +124,7 @@ import org.jdiameter.client.api.parser.IMessageParser;
 import org.jdiameter.client.api.router.IRouter;
 import org.jdiameter.client.impl.AbstractStateChangeListener;
 import org.jdiameter.client.impl.DictionarySingleton;
+import org.jdiameter.client.impl.transport.tls.netty.TLSClientConnection;
 import org.jdiameter.common.api.concurrent.IConcurrentFactory;
 import org.jdiameter.common.api.data.ISessionDatasource;
 import org.jdiameter.common.api.statistic.IStatistic;
@@ -1130,4 +1131,10 @@ public class PeerImpl extends AbstractPeer implements IPeer {
     }
   }
 
+  public Certificate[] getPeerCredentials() {
+    if (connection instanceof TLSClientConnection) {
+      return ((TLSClientConnection) connection).getPeerCredentials();
+    }
+    throw new UnsupportedOperationException();
+  }
 }

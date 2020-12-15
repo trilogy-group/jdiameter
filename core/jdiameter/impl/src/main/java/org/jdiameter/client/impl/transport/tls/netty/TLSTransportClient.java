@@ -19,16 +19,6 @@
 
 package org.jdiameter.client.impl.transport.tls.netty;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-
-import org.jdiameter.api.Configuration;
-import org.jdiameter.client.api.IMessage;
-import org.jdiameter.client.api.parser.IMessageParser;
-import org.jdiameter.common.api.concurrent.IConcurrentFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -37,6 +27,17 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.logging.LoggingHandler;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.security.cert.Certificate;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.jdiameter.api.Configuration;
+import org.jdiameter.client.api.IMessage;
+import org.jdiameter.client.api.parser.IMessageParser;
+import org.jdiameter.common.api.concurrent.IConcurrentFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -44,6 +45,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
  */
 public class TLSTransportClient {
   private static final Logger logger = LoggerFactory.getLogger(TLSTransportClient.class);
+  private static final boolean preemptive = Boolean.valueOf(System.getenv("CLDCB_RFC6733"));
 
   private TLSClientConnection parentConnection;
   private IConcurrentFactory concurrentFactory;
@@ -59,8 +61,20 @@ public class TLSTransportClient {
 
   private volatile TlsHandshakingState tlsHandshakingState = TlsHandshakingState.INIT;
 
+  private final AtomicBoolean tlsStarted = new AtomicBoolean();
+
   enum TlsHandshakingState {
     INIT, SHAKING, SHAKEN
+  }
+
+  private Certificate[] peerCertificateChain;
+
+  public void setPeerCertificateChain(Certificate[] peerCertificateChain) {
+    this.peerCertificateChain = peerCertificateChain;
+  }
+
+  public Certificate[] getPeerCertificateChain() {
+    return peerCertificateChain;
   }
 
   protected TLSTransportClient(TLSClientConnection parenConnection, IConcurrentFactory concurrentFactory, IMessageParser parser,
@@ -99,6 +113,7 @@ public class TLSTransportClient {
     ChannelPipeline pipeline = this.channel.pipeline();
     pipeline.addLast("startTlsServerHandler", new StartTlsServerHandler(this));
     pipeline.addLast("decoder", new DiameterMessageDecoder(parenConnection, parser));
+    pipeline.addFirst("logging", new LoggingHandler());
     pipeline.addLast("msgHandler", new DiameterMessageHandler(parentConnection, true));
     pipeline.addLast("encoder", new DiameterMessageEncoder(parser));
     pipeline.addLast("inbandWriter", new InbandSecurityHandler());
@@ -121,6 +136,7 @@ public class TLSTransportClient {
       protected void initChannel(SocketChannel channel) throws Exception {
         ChannelPipeline pipeline = channel.pipeline();
         pipeline.addLast("decoder", new DiameterMessageDecoder(parentConnection, parser));
+        pipeline.addFirst("logging", new LoggingHandler());
         pipeline.addLast("msgHandler", new DiameterMessageHandler(parentConnection, false));
         pipeline.addLast("startTlsInitiator", new StartTlsInitiator(config, TLSTransportClient.this));
         pipeline.addLast("encoder", new DiameterMessageEncoder(parser));
@@ -130,7 +146,17 @@ public class TLSTransportClient {
 
     this.channel = bootstrap.remoteAddress(destAddress).connect().sync().channel();
 
-    parentConnection.onConnected();
+    if (preemptive) {
+      while (!tlsStarted.get()) {
+        logger.debug("Waiting for end of TLS handshake");
+        synchronized (tlsStarted) {
+          tlsStarted.wait(10000);
+        }
+      }
+      logger.debug("TLS handshake is complete");
+    }
+
+    onConnected();
 
     logger.debug("Started TLS Transport on Socket {}", socketDescription);
   }
@@ -237,4 +263,10 @@ public class TLSTransportClient {
     return config;
   }
 
+  public void onConnected() {
+    tlsStarted.set(true);
+    synchronized (tlsStarted) {
+      tlsStarted.notifyAll();
+    }
+  }
 }
