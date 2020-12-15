@@ -47,7 +47,7 @@ public class TLSTransportClient {
 
   private static final Logger logger = LoggerFactory.getLogger(TLSTransportClient.class);
   private static final boolean PREEMPTIVE = Boolean.valueOf(System.getenv("CLDCB_RFC6733"));
-  public static final int timeoutMillis = 10000;
+  public static final int TIMEOUT_MILLIS = 10000;
 
   private TLSClientConnection parentConnection;
   private IConcurrentFactory concurrentFactory;
@@ -152,7 +152,7 @@ public class TLSTransportClient {
       while (!tlsStarted.get()) {
         logger.debug("Waiting for end of TLS handshake");
         synchronized (tlsStarted) {
-          tlsStarted.wait(timeoutMillis);
+          tlsStarted.wait(TIMEOUT_MILLIS);
         }
       }
       logger.debug("TLS handshake is complete");

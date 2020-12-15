@@ -87,7 +87,7 @@ public class StartTlsInitiator extends ChannelInboundHandlerAdapter {
     pipeline.remove("encoder");
     pipeline.remove("inbandWriter");
 
-    pipeline.addLast("startTlsClientHandler", new StartTlsClientHandler(this.tlsTransportClient));
+    pipeline.addLast("startTlsClientHandler", new StartTlsClientHandler(tlsTransportClient));
 
     logger.debug("Sending StartTlsRequest");
     ctx.writeAndFlush(Unpooled.wrappedBuffer("StartTlsRequest".getBytes())).addListener(new GenericFutureListener() {
