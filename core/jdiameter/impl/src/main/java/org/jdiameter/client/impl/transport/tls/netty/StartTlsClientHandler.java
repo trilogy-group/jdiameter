@@ -19,12 +19,6 @@
 
 package org.jdiameter.client.impl.transport.tls.netty;
 
-import javax.net.ssl.SSLEngine;
-
-import org.jdiameter.client.impl.transport.tls.netty.TLSTransportClient.TlsHandshakingState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -33,13 +27,20 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import javax.net.ssl.SSLEngine;
+import org.jdiameter.client.impl.transport.tls.netty.TLSTransportClient.TlsHandshakingState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author <a href="mailto:jqayyum@gmail.com"> Jehanzeb Qayyum </a>
  */
 public class StartTlsClientHandler extends ChannelInboundHandlerAdapter {
+
+  public static final String START_TLS_RESPONSE = "StartTlsResponse";
   private static final Logger logger = LoggerFactory.getLogger(StartTlsClientHandler.class);
+  private static final boolean PREEMPTIVE = Boolean.parseBoolean(System.getenv("CLDCB_RFC6733"));
 
   private final TLSTransportClient tlsTransportClient;
 
@@ -55,7 +56,7 @@ public class StartTlsClientHandler extends ChannelInboundHandlerAdapter {
     byte[] bytes = new byte[buf.readableBytes()];
     buf.getBytes(buf.readerIndex(), bytes);
 
-    if ("StartTlsResponse".equals(new String(bytes))) {
+    if (START_TLS_RESPONSE.equals(new String(bytes))) {
       logger.debug("received StartTlsResponse");
 
       SslContext sslContext = SslContextFactory.getSslContextForClient(this.tlsTransportClient.getConfig());
@@ -86,6 +87,10 @@ public class StartTlsClientHandler extends ChannelInboundHandlerAdapter {
 
             pipeline.addLast("encoder", new DiameterMessageEncoder(StartTlsClientHandler.this.tlsTransportClient.getParser()));
             pipeline.addLast("inbandWriter", new InbandSecurityHandler());
+
+            if (PREEMPTIVE) {
+              tlsTransportClient.onConnected();
+            }
           }
         }
       });

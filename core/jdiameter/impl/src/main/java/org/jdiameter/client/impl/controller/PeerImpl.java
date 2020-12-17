@@ -87,7 +87,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-
+import javax.security.cert.X509Certificate;
 import org.jdiameter.api.ApplicationId;
 import org.jdiameter.api.Avp;
 import org.jdiameter.api.AvpDataException;
@@ -124,6 +124,7 @@ import org.jdiameter.client.api.parser.IMessageParser;
 import org.jdiameter.client.api.router.IRouter;
 import org.jdiameter.client.impl.AbstractStateChangeListener;
 import org.jdiameter.client.impl.DictionarySingleton;
+import org.jdiameter.client.impl.transport.tls.netty.TLSClientConnection;
 import org.jdiameter.common.api.concurrent.IConcurrentFactory;
 import org.jdiameter.common.api.data.ISessionDatasource;
 import org.jdiameter.common.api.statistic.IStatistic;
@@ -1130,4 +1131,14 @@ public class PeerImpl extends AbstractPeer implements IPeer {
     }
   }
 
+  /**
+   * Get peer certificate chain
+   * @return certificate array
+   */
+  public X509Certificate[] getPeerCredentials() {
+    if (connection instanceof TLSClientConnection) {
+      return ((TLSClientConnection) connection).getPeerCredentials();
+    }
+    throw new UnsupportedOperationException();
+  }
 }

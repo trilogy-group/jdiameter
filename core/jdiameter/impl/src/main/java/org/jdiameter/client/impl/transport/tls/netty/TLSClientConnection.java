@@ -19,6 +19,7 @@
 
 package org.jdiameter.client.impl.transport.tls.netty;
 
+import io.netty.channel.Channel;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -26,9 +27,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import javax.net.ssl.SSLSocketFactory;
-
+import javax.security.cert.X509Certificate;
 import org.jdiameter.api.AvpDataException;
 import org.jdiameter.api.Configuration;
 import org.jdiameter.api.InternalException;
@@ -44,8 +44,6 @@ import org.jdiameter.common.api.concurrent.IConcurrentFactory;
 import org.jdiameter.server.impl.helpers.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.netty.channel.Channel;
 
 /**
  *
@@ -339,5 +337,13 @@ public class TLSClientConnection implements IConnection {
       this(type);
       this.message = message;
     }
+  }
+
+  /**
+   * Get peer certificate chain
+   * @return certificate array
+   */
+  public X509Certificate[] getPeerCredentials() {
+    return client.getPeerCertificateChain();
   }
 }
