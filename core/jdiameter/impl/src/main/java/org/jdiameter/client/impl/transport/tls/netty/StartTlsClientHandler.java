@@ -40,7 +40,7 @@ public class StartTlsClientHandler extends ChannelInboundHandlerAdapter {
 
   public static final String START_TLS_RESPONSE = "StartTlsResponse";
   private static final Logger logger = LoggerFactory.getLogger(StartTlsClientHandler.class);
-  private static final boolean PREEMPTIVE = Boolean.valueOf(System.getenv("CLDCB_RFC6733"));
+  private static final boolean PREEMPTIVE = Boolean.parseBoolean(System.getenv("CLDCB_RFC6733"));
 
   private final TLSTransportClient tlsTransportClient;
 

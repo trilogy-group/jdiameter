@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class StartTlsInitiator extends ChannelInboundHandlerAdapter {
   private static final Logger logger = LoggerFactory.getLogger(StartTlsInitiator.class);
-  private static final boolean PREEMPTIVE = Boolean.valueOf(System.getenv("CLDCB_RFC6733"));
+  private static final boolean PREEMPTIVE = Boolean.parseBoolean(System.getenv("CLDCB_RFC6733"));
   private final Configuration config;
   private final TLSTransportClient tlsTransportClient;
 

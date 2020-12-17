@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 public class TLSTransportClient {
 
   private static final Logger logger = LoggerFactory.getLogger(TLSTransportClient.class);
-  private static final boolean PREEMPTIVE = Boolean.valueOf(System.getenv("CLDCB_RFC6733"));
+  private static final boolean PREEMPTIVE = Boolean.parseBoolean(System.getenv("CLDCB_RFC6733"));
   public static final int TIMEOUT_MILLIS = 10000;
 
   private TLSClientConnection parentConnection;
