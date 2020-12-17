@@ -71,7 +71,7 @@ public class TLSTransportClient {
 
   private X509Certificate[] peerCertificateChain;
 
-  public void setPeerCertificateChain(X509Certificate[] peerCertificateChain) {
+  public void setPeerCertificateChain(X509Certificate... peerCertificateChain) {
     this.peerCertificateChain = null == peerCertificateChain ? new X509Certificate[0] : peerCertificateChain.clone();
   }
 

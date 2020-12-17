@@ -93,9 +93,9 @@ public class StartTlsInitiator extends ChannelInboundHandlerAdapter {
     ctx.writeAndFlush(Unpooled.wrappedBuffer("StartTlsRequest".getBytes())).addListener(new GenericFutureListener() {
 
       @Override
-      public void operationComplete(Future f) throws Exception {
-        if (!f.isSuccess()) {
-          logger.error(f.cause().getMessage(), f.cause());
+      public void operationComplete(Future future) throws Exception {
+        if (!future.isSuccess()) {
+          logger.error(future.cause().getMessage(), future.cause());
         }
       }
     });
